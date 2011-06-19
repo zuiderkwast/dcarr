@@ -20,9 +20,9 @@ Introduction
 ============
 
 This is a minimal set of macros implementing a dynamic array, using a
-using circular buffer.  The values can be of any type.  Allocation is
-done using malloc and realloc, but you can change this by redifining
-some macros.
+circular buffer.  The values can be of any type.  Allocation is done
+using malloc and realloc, but you can change this by redifining some
+macros.
 
 Just copy dcarr.h into your project and use it. There is no library to
 link to.
