@@ -14,3 +14,69 @@
  *********************************************************************/
 
 This is public domain. The author disclaims copyright.
+
+
+Introduction
+============
+
+This is a minimal set of macros implementing a dynamic array, using a
+using circular buffer.  The values can be of any type.  Allocation is
+done using malloc and realloc, but you can change this by redifining
+some macros.
+
+Just copy dcarr.h into your project and use it. There is no library to
+link to.
+
+Beeing generic means the values can be of any type.  The array type
+has to be defined though, using dcarr_define_type, which expands to a
+typedef struct.
+
+Many of the macros require the elements' type as one of the parameters.
+This may seem strange, but there is nothing strange about it in the
+world of macros.
+
+
+How to use it
+=============
+
+First define an array type using the dcarr_define_type.  This example
+defines the type my_array_of_double_t to be an array of doubles:
+
+  dcarr_define_type(my_array_of_double_t, double);
+
+To create an array, declare a variable and initialize it:
+
+  my_array_of_double_t numbers;
+  dcarr_init(numbers, double, 8);
+
+Add some values:
+
+  /* Inserting at the end is O(1) amortized */
+  dcarr_push(numbers, double, 3.1415926535);
+
+  /* Inserting at the beginning is O(1) amortized */
+  dcarr_unshift(numbers, double, 42.0);
+
+  /* Inserting in the middle is O(n) */
+  dcarr_insert(numbers, 1, double, 99.9);
+
+Access random elements, by index. Indexing starts at 0, just like any
+other array.
+
+  double d = dcarr_elem(numbers, 2);
+
+It's also possible to assign to dcarr_elem.
+
+  dcarr_elem(numbers, 2) = 123.0;
+
+Print the contents of the array.
+
+  int i;
+  for (i=0; i < dcarr_len(numbers); i++)
+      printf("Element at %d is %g.\n", i, dcarr_elem(i));
+
+Finally, free all allocated memory.
+
+  dcarr_destroy(numbers);
+
+For more information, refer to dcarr.h. It is quite small.

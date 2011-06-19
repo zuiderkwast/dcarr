@@ -34,5 +34,9 @@ int main() {
 		printf("Element at %2d : %d\n",
 		       i, dcarr_elem(arr, i));
 	}
+
+	/* free allocated memory */
+	dcarr_destroy(arr);
+
 	return 0;
 }

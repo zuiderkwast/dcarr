@@ -40,16 +40,25 @@
 /*
  * Initializes an array and sets the initial capacity
  */
-#define dcarr_init(a, valtype, capacity) do{\
+#define dcarr_init(a, elemtype, capacity) do{\
 	if ((capacity) > 0) { \
-		(a).els = (valtype *)dcarr_alloc((capacity) * sizeof(valtype)); \
+		(a).els = (elemtype *)dcarr_alloc((capacity) * sizeof(elemtype)); \
 		if (!(a).els) dcarr_oom(); \
 	} \
 	else \
-		(a).els = (valtype *)0; \
+		(a).els = (elemtype *)0; \
 	(a).cap = (capacity); \
 	(a).off = 0; \
 	(a).len = 0; \
+}while(0)
+
+/*
+ * Frees all allocated memory.
+ *
+ * To use it again after this, it must be initialized using dcarr_init.
+ */
+#define dcarr_destroy(a) do{ \
+	dcarr_free((a).els); \
 }while(0)
 
 /*
@@ -68,8 +77,8 @@
 /*
  * Insert an element at the beginning
  */
-#define dcarr_unshift(a, valtype, value) do{ \
-	dcarr_reserve((a), valtype, 1); \
+#define dcarr_unshift(a, elemtype, value) do{ \
+	dcarr_reserve((a), elemtype, 1); \
 	(a).off = ((a).off + (a).cap - 1) % (a).cap; \
 	(a).els[(a).off] = (value); \
 	(a).len++; \
@@ -87,8 +96,8 @@
 /*
  * Insert an element at the end
  */
-#define dcarr_push(a, valtype, value) do{ \
-	dcarr_reserve((a), valtype, 1); \
+#define dcarr_push(a, elemtype, value) do{ \
+	dcarr_reserve((a), elemtype, 1); \
 	(a).els[dcarr_idx((a), (a).len++)] = (value); \
 }while(0)
 
@@ -101,21 +110,21 @@
 /*
  * Insert at an arbitrary position, O(n)
  */
-#define dcarr_insert(a, i, valtype, value) do{ \
-	dcarr_reserve((a), valtype, 1); \
+#define dcarr_insert(a, i, elemtype, value) do{ \
+	dcarr_reserve((a), elemtype, 1); \
 	if ((i) < (a).len) { \
 		/* need to move elements */ \
 		if (dcarr_idx(a, i) > (a).off && (a).off != 0) { \
 			/* move the beginning of the list backwards */ \
 			memmove(&((a).els[(a).off-1]), \
 			        &((a).els[(a).off]), \
-			        sizeof(valtype) * (dcarr_idx(a, i) - (a).off)); \
+			        sizeof(elemtype) * (dcarr_idx(a, i) - (a).off)); \
 			(a).off--; \
 		} else { \
 			/* move the end of the list forward */ \
 			memmove(&((a).els[dcarr_idx(a, i)+1]), \
 			        &((a).els[dcarr_idx(a, i)]), \
-			        sizeof(valtype) * ((a).len - i)); \
+			        sizeof(elemtype) * ((a).len - i)); \
 		} \
 	}\
 	(a).len++; \
@@ -128,9 +137,9 @@
  * If increasing it, the values at unassigned indices are undefined.
  * If decreasing it, the removed values are not cleared in memory.
  */
-#define dcarr_resize(a, valtype, newsize) do{ \
+#define dcarr_resize(a, elemtype, newsize) do{ \
 	if ((newsize) > (a).len) {\
-		dcarr_reserve((a), valtype, (newsize) - (a).len); \
+		dcarr_reserve((a), elemtype, (newsize) - (a).len); \
 	(a).len = (newsize); \
 }while(0)
 
