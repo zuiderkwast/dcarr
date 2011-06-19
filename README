@@ -1,0 +1,16 @@
+/*********************************************************************
+ * dcarr.h - A generic dynamic array implemented as macros.          *
+ *                                                                   *
+ * The array uses a circular buffer, thus it has amortized constant  *
+ * time insertion/removal at both ends. It is therefore well suited  *
+ * for FIFO queues and deques, and as a general purpose dynamic      *
+ * array. This implementation is also know as a deque array.         *
+ *                                                                   *
+ * The memory overhead is 3 * sizeof(int) + n * sizeof(valuetype)    *
+ * where 0 <= n <= N / 2, and N is the number of elements.           *
+ *                                                                   *
+ * Compared to a basic dynamic array, it only stores one extra       *
+ * integer: an internal offset.                                      *
+ *********************************************************************/
+
+This is public domain. The author disclaims copyright.
