@@ -6,12 +6,13 @@
  * for FIFO queues and deques, and as a general purpose dynamic      *
  * array. This implementation is also know as a deque array.         *
  *                                                                   *
- * The memory overhead is 3 * sizeof(int) + n * sizeof(valuetype)    *
+ * The memory overhead is 3 * sizeof(int) + n * sizeof(elemtype)     *
  * where 0 <= n <= N / 2, and N is the number of elements.           *
  *                                                                   *
  * Compared to a basic dynamic array, it only stores one extra       *
  * integer: an internal offset.                                      *
  *********************************************************************/
+
 #ifndef DCARR_H
 #define DCARR_H
 
@@ -23,14 +24,22 @@
 
 #include <string.h> /* memmove, memset */
 
-#define dcarr_define_type(arraytype, valuetype) \
+/*
+ * Defines arraytype as an array with elements of type elemtype.
+ *
+ * Expands to a typedef struct.
+ */
+#define dcarr_define_type(arraytype, elemtype) \
 	typedef struct arraytype { \
-		valuetype *els; \
+		elemtype *els; \
 		unsigned int cap; \
 		unsigned int off; \
 		unsigned int len; \
 	} arraytype
 
+/*
+ * Initializes an array and sets the initial capacity
+ */
 #define dcarr_init(a, valtype, capacity) do{\
 	if ((capacity) > 0) { \
 		(a).els = (valtype *)dcarr_alloc((capacity) * sizeof(valtype)); \
@@ -114,9 +123,10 @@
 }while(0)
 
 /*
- * resizes the array.
- * if increasing it, the values at unassigned indices are undefined.
- * if decreasing it, the removed values are not cleared in memory.
+ * Resizes the array.
+ *
+ * If increasing it, the values at unassigned indices are undefined.
+ * If decreasing it, the removed values are not cleared in memory.
  */
 #define dcarr_resize(a, valtype, newsize) do{ \
 	if ((newsize) > (a).len) {\
@@ -138,21 +148,21 @@
 /*
  * Reserve space for at least n more elements
  */
-#define dcarr_reserve(a, vtype, n) do{ \
-	if ((a).len + n > (a).cap) { \
+#define dcarr_reserve(a, eltype, n) do{ \
+	if ((a).len + (n) > (a).cap) { \
 		unsigned int _cap = (a).cap; \
-		while((a).len + n > (a).cap){ \
+		while((a).len + (n) > (a).cap){ \
 			(a).cap += ((a).cap > 3 ? ((a).cap) / 2 : 8); \
 		} \
-		(a).els = (vtype *)dcarr_realloc((a).els, (a).cap * sizeof(vtype)); \
+		(a).els = (eltype *)dcarr_realloc((a).els, (a).cap * sizeof(eltype)); \
 		if (!(a).els) dcarr_oom(); \
 		if ((a).off + (a).len > _cap) { \
 			/* it warps around */ \
 			memmove(&((a).els[(a).off + (a).cap - _cap]), \
 			        &((a).els[(a).off]), \
-			        sizeof(vtype) * ((a).cap - _cap)); \
+			        sizeof(eltype) * ((a).cap - _cap)); \
 			memset(&((a).els[(a).off]), 0, \
-			       sizeof(vtype) * ((a).cap - _cap)); \
+			       sizeof(eltype) * ((a).cap - _cap)); \
 			(a).off += (a).cap - _cap; \
 		} \
 	} \
